@@ -40,17 +40,16 @@ int main(int argc, char* argv[]) {
     // Fin
     auto stop = high_resolution_clock::now();
 
-    // Calcular el tiempo de ejecución en milisegundos
-    auto duration = duration_cast<milliseconds>(stop - start);
+    std::chrono::duration<float> duration = (stop - start);
 
-    cout << "Tiempo de ejecución: " << duration.count() << " ms\n";
+    cout << "El tiempo total en segundos es: " << duration.count() << " segundos" << endl;
 
     // Guardar la imagen
     imwrite(argv[2], grayImage);
 
     // Mostrar la imagen
     imshow("Imagen en escala de grises", grayImage);
-    waitKey(2000);
+    waitKey(0);
 
     return 0;
 }
