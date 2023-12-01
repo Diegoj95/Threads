@@ -16,7 +16,7 @@ void procesarPorcion(Mat& image, Mat& grayImage, int startRow, int endRow) {
             // Calcular la luminosidad
             uchar luminosity = static_cast<uchar>(0.299 * pixel[2] + 0.587 * pixel[1] + 0.114 * pixel[0]);
 
-            #pragma omp critical
+            // Asignar directamente el valor en lugar de usar una sección crítica
             grayImage.at<uchar>(r, c) = luminosity;
         }
     }
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     auto stop = high_resolution_clock::now();
 
     // Calcular el tiempo de ejecución en segundos
-    std::chrono::duration<float> duration = (stop - start);
+    chrono::duration<float> duration = (stop - start);
 
     cout << "Inicio de la conversión . . ." << endl;
     cout << "Fin de la conversión . . ." << endl;
