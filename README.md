@@ -3,7 +3,7 @@
 ## Contenido
 
 1. [Descripción](#descripción)
-2. [Compilación y ejecución](#compilacion-y-ejecucion)
+2. [Compilación y ejecución](#compilación-y-ejecución)
 3. [Pruebas](#pruebas)
 4. [Autores](#autores)
 
@@ -16,6 +16,20 @@ Ejemplo:
 
 ## Compilación y ejecución
 
+Prerequisitos:
+
+   ```bash
+   sudo apt-get install g++
+   ```
+
+   ```bash
+   sudo apt-get install make
+   ```
+
+   ```bash
+   sudo apt install libopencv-dev
+   ```
+   
 Ver Readme para cada versión.
 
    - [Secuencial](secuencial/README.MD)
