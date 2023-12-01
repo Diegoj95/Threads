@@ -1,44 +1,81 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <chrono>
 #include <omp.h>
 
 using namespace cv;
 using namespace std;
+using namespace chrono;
 
-int main() {
+void procesarPorcion(Mat& image, Mat& grayImage, int startRow, int endRow) {
+    for (int r = startRow; r < endRow; ++r) {
+        #pragma omp parallel for
+        for (int c = 0; c < image.cols; ++c) {
+            Vec3b pixel = image.at<Vec3b>(r, c);
 
-    Mat image = imread("C:\Users\Tomás\Documents\Code\Threads-master\imagenes", IMREAD_COLOR);
+            // Calcular la luminosidad
+            uchar luminosity = static_cast<uchar>(0.299 * pixel[2] + 0.587 * pixel[1] + 0.114 * pixel[0]);
 
-    if (image.empty()) {
-        cout << "No se encontró imagen.\n";
+            #pragma omp critical
+            grayImage.at<uchar>(r, c) = luminosity;
+        }
+    }
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        cout << "Uso: " << argv[0] << " <nombre_imagen_color> <nombre_imagen_grises> <num_hebras>\n";
         return -1;
     }
 
-    int num_hilos;
-    
-    do {
-        cout << "Ingrese la cantidad de hilos (1-16): ";
-        cin >> num_hilos;
+    // Cargar la imagen
+    cout << "Cargando imagen . . ." << endl;
+    Mat image = imread(argv[1], IMREAD_COLOR);
 
-        if (num_hilos < 1 || num_hilos > 16) {
-            cout << "Número de hilos no válido. Debe estar entre 1 y 16.\n";
-        }
-    } while (num_hilos < 1 || num_hilos > 16);
-
-    // hilos
-    omp_set_num_threads(num_hilos);
-
-    #pragma omp parallel for
-    for (int r = 0; r < image.rows; r++) {
-        for (int c = 0; c < image.cols; c++) {
-            Vec3b pixel = image.at<Vec3b>(r, c);
-            // Escala de grises
-            uchar gray_value = 0.299 * pixel[2] + 0.587 * pixel[1] + 0.114 * pixel[0];
-
-
-            printf("(%d) ", gray_value);
-        }
+    if (image.empty()) {
+        cout << "No se encontró la imagen a color.\n";
+        return -1;
     }
+
+    // Mostrar información de la imagen
+    cout << "Filas: " << image.rows << " Columnas: " << image.cols << endl;
+
+    // Inicio
+    auto start = high_resolution_clock::now();
+
+    // Matriz en escala de grises
+    Mat grayImage(image.rows, image.cols, CV_8UC1);
+
+    int numThreads = atoi(argv[3]);
+
+    // Dividir la imagen en partes para cada hebra
+    int rowsPerThread = image.rows / numThreads;
+
+    #pragma omp parallel num_threads(numThreads)
+    {
+        int threadID = omp_get_thread_num();
+        int startRow = threadID * rowsPerThread;
+        int endRow = (threadID == numThreads - 1) ? image.rows : startRow + rowsPerThread;
+
+        procesarPorcion(image, grayImage, startRow, endRow);
+    }
+
+    // Fin
+    auto stop = high_resolution_clock::now();
+
+    // Calcular el tiempo de ejecución en segundos
+    std::chrono::duration<float> duration = (stop - start);
+
+    cout << "Inicio de la conversión . . ." << endl;
+    cout << "Fin de la conversión . . ." << endl;
+    cout << "El tiempo total en segundos es: " << duration.count() << " segundos" << endl;
+
+    // Guardar la imagen
+    imwrite(argv[2], grayImage);
+
+    // Mostrar la imagen
+    imshow("Imagen en escala de grises", grayImage);
+    waitKey(0);
 
     return 0;
 }
