@@ -50,7 +50,7 @@ Se hicieron pruebas para cada versión, utilizando la misma imagen y diferentes 
 
 - OpenMP:
   
-![Pruebas con OpenMP](https://i.imgur.com/0RAJBAR.png)
+![Pruebas con OpenMP](https://i.imgur.com/BUCLdQF.png)
 
 ## Autores
 
